@@ -9,6 +9,7 @@ import {
   Trash2,
   MoreHorizontal,
   File as FileIcon,
+  Eye,
 } from "lucide-react";
 import { useDriveStore } from "#/stores/driveStore";
 import type { Folder, FileItem } from "#/lib/api";
@@ -33,6 +34,7 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
+import { FilePreviewDialog } from "@/components/drive/FilePreviewDialog";
 import * as React from "react";
 
 function formatBytes(b: number) {
@@ -76,6 +78,7 @@ export function DriveGrid({
   const delFile = useDeleteFile(currentFolderId);
   const [downloading, setDownloading] = React.useState<string | null>(null);
   const [pending, setPending] = React.useState<null | { type: "folder" | "file"; id: string; name: string }>(null);
+  const [previewFile, setPreviewFile] = React.useState<FileItem | null>(null);
 
   const handleDownload = async (f: FileItem) => {
     try {
@@ -146,18 +149,34 @@ export function DriveGrid({
             key={f.id}
             className="flex items-center gap-3 border-b px-3 py-2.5 last:border-0 hover:bg-muted/50"
           >
-            <div className="flex flex-1 items-center gap-3 overflow-hidden">
+            <button
+              type="button"
+              onClick={() => f.status === "confirmed" && setPreviewFile(f)}
+              disabled={f.status !== "confirmed"}
+              className="flex flex-1 items-center gap-3 overflow-hidden text-left hover:opacity-80 disabled:opacity-50"
+              aria-label={`Preview ${f.name}`}
+            >
               <span className="flex size-8 shrink-0 items-center justify-center border bg-card">{mimeIcon(f.mimeType, f.name)}</span>
-              <span className="truncate text-sm">{f.name}</span>
+              <span className="truncate text-sm underline-offset-4 hover:underline">{f.name}</span>
               {f.status !== "confirmed" && (
                 <Badge variant="outline" className="rounded-none font-mono text-[10px] uppercase">
                   {f.status}
                 </Badge>
               )}
-            </div>
+            </button>
             <span className="hidden w-[110px] shrink-0 text-xs text-muted-foreground md:block">{formatBytes(f.size)}</span>
             <span className="hidden w-[110px] shrink-0 text-xs text-muted-foreground md:block">{timeAgo(f.createdAt)}</span>
             <div className="flex w-[80px] shrink-0 items-center justify-end gap-1">
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                onClick={() => setPreviewFile(f)}
+                disabled={f.status !== "confirmed"}
+                className="rounded-none"
+                aria-label="Preview"
+              >
+                <Eye className="size-4" />
+              </Button>
               <Button
                 variant="ghost"
                 size="icon-xs"
@@ -176,6 +195,9 @@ export function DriveGrid({
                   }
                 />
                 <DropdownMenuContent align="end" className="rounded-none">
+                  <DropdownMenuItem onClick={() => setPreviewFile(f)} disabled={f.status !== "confirmed"}>
+                    <Eye className="size-4" /> Preview
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => handleDownload(f)} disabled={f.status !== "confirmed"}>
                     Download
                   </DropdownMenuItem>
@@ -196,6 +218,7 @@ export function DriveGrid({
         )}
       </div>
       <DeleteConfirmDialog pending={pending} setPending={setPending} delFolder={delFolder} delFile={delFile} />
+      <FilePreviewDialog file={previewFile} open={!!previewFile} onOpenChange={(o) => !o && setPreviewFile(null)} />
     </>
     );
   }
@@ -259,14 +282,24 @@ export function DriveGrid({
             {filteredFiles.map((f) => (
               <Card key={f.id} className="group gap-0 overflow-hidden rounded-none py-0 shadow-none">
                 <CardContent className="p-0">
-                  <div className="relative flex h-[108px] items-center justify-center border-b bg-muted/30">
-                    <div className="flex size-12 items-center justify-center border bg-card shadow-sm">{mimeIcon(f.mimeType, f.name)}</div>
-                    {f.status !== "confirmed" && (
+                  <button
+                    type="button"
+                    onClick={() => f.status === "confirmed" && setPreviewFile(f)}
+                    className="relative flex h-[108px] w-full items-center justify-center border-b bg-muted/30 text-left hover:bg-muted/50 disabled:opacity-50"
+                    disabled={f.status !== "confirmed"}
+                    aria-label={`Preview ${f.name}`}
+                  >
+                    <span className="flex size-12 items-center justify-center border bg-card shadow-sm">{mimeIcon(f.mimeType, f.name)}</span>
+                    {f.status !== "confirmed" ? (
                       <Badge variant="secondary" className="absolute left-2 top-2 rounded-none font-mono text-[10px] uppercase">
                         {f.status}
                       </Badge>
+                    ) : (
+                      <span className="absolute right-2 top-2 flex items-center gap-1 rounded-none border bg-card px-1.5 py-0.5 font-mono text-[10px] uppercase text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100">
+                        <Eye className="size-3" /> Preview
+                      </span>
                     )}
-                  </div>
+                  </button>
                   <div className="p-3">
                     <p className="truncate text-sm font-medium" title={f.name}>
                       {f.name}
@@ -276,13 +309,22 @@ export function DriveGrid({
                     </p>
                     <div className="mt-3 flex gap-1">
                       <Button
+                        variant="outline"
+                        size="xs"
+                        className="flex-1 gap-1 rounded-none"
+                        onClick={() => setPreviewFile(f)}
+                        disabled={f.status !== "confirmed"}
+                      >
+                        <Eye className="size-3.5" /> Preview
+                      </Button>
+                      <Button
                         onClick={() => handleDownload(f)}
                         disabled={f.status !== "confirmed" || downloading === f.id}
                         size="xs"
-                        className="flex-1 rounded-none"
+                        className="rounded-none"
+                        aria-label="Download"
                       >
                         {downloading === f.id ? <span className="size-3 animate-spin border border-current border-t-transparent" /> : <Download className="size-3.5" />}
-                        Download
                       </Button>
                       <Button
                         variant="outline"
@@ -302,6 +344,7 @@ export function DriveGrid({
       </section>
       </div>
       <DeleteConfirmDialog pending={pending} setPending={setPending} delFolder={delFolder} delFile={delFile} />
+      <FilePreviewDialog file={previewFile} open={!!previewFile} onOpenChange={(o) => !o && setPreviewFile(null)} />
     </>
   );
 }

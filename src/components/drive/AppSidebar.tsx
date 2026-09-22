@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useMe, useContents } from "#/hooks/useDrive";
 import { useDriveStore } from "#/stores/driveStore";
-import { Cloud, FolderPlus, Upload, HardDrive, Clock, Star } from "lucide-react";
+import { Cloud, FolderPlus, Upload, HardDrive } from "lucide-react";
 
 export function AppSidebar({
   onCreateFolder,
@@ -74,6 +74,7 @@ export function AppSidebar({
                   </span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+              {/* TODO: enable when API supports recent/starred
               <SidebarMenuItem>
                 <SidebarMenuButton tooltip="Recent">
                   <Clock className="size-4" />
@@ -86,6 +87,7 @@ export function AppSidebar({
                   <span>Starred</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+              */}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

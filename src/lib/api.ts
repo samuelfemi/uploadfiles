@@ -164,16 +164,20 @@ export const api = {
     }
   },
 
-  // download triggers browser save; returns blob URL
-  async downloadFile(id: string, filename: string): Promise<void> {
+  async fetchFileBlob(id: string): Promise<Blob> {
     const res = await fetch(url(`/files/${id}/download`), {
       credentials: "include",
     });
     if (!res.ok) {
       const t = await res.text().catch(() => res.statusText);
-      throw new Error(t || "download failed");
+      throw new Error(t || "fetch failed");
     }
-    const blob = await res.blob();
+    return res.blob();
+  },
+
+  // download triggers browser save; returns blob URL
+  async downloadFile(id: string, filename: string): Promise<void> {
+    const blob = await this.fetchFileBlob(id);
     const blobUrl = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = blobUrl;

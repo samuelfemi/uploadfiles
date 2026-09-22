@@ -3,6 +3,7 @@ import { Search, LogOut, Cloud, Grid3X3, List, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { GoogleSignInButton } from "@/components/ui/google-signin-button";
 import { useMe } from "#/hooks/useDrive";
 import { api } from "#/lib/api";
 import { useDriveStore } from "#/stores/driveStore";
@@ -61,9 +62,7 @@ export function Header() {
         {meLoading ? (
           <Loader2 className="size-4 animate-spin text-muted-foreground" />
         ) : !me ? (
-          <Button size="sm" onClick={() => (window.location.href = api.loginUrl())} className="rounded-none">
-            Sign in with Google
-          </Button>
+          <GoogleSignInButton size="sm" onClick={() => (window.location.href = api.loginUrl())} aria-label="Sign in with Google" />
         ) : (
           <div className="flex items-center gap-2">
             {/* shadcn avatar replaced with plain img to ensure Google image shows */}

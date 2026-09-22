@@ -15,7 +15,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search, Loader2, FolderPlus, Upload, ArrowUpRight, HardDrive } from "lucide-react";
+import { GoogleSignInButton } from "@/components/ui/google-signin-button";
+import { Search, Loader2, FolderPlus, Upload, HardDrive } from "lucide-react";
 
 export const Route = createFileRoute("/")({ component: DrivePage });
 
@@ -66,9 +67,7 @@ function DrivePage() {
               Base Sera
             </Badge>
           </div>
-          <Button size="sm" onClick={() => (window.location.href = api.loginUrl())} className="rounded-none">
-            Sign in <ArrowUpRight className="size-3.5" />
-          </Button>
+          <GoogleSignInButton size="sm" onClick={() => (window.location.href = api.loginUrl())} aria-label="Sign in with Google" />
         </div>
 
         <div className="mx-auto max-w-[1160px] px-4 md:px-8">
@@ -88,9 +87,9 @@ function DrivePage() {
                 No banners. No clutter. Just your work.
               </p>
               <div className="mt-7 flex flex-wrap items-center gap-3">
-                <Button onClick={() => (window.location.href = api.loginUrl())} className="rounded-none">
+                <GoogleSignInButton onClick={() => (window.location.href = api.loginUrl())}>
                   Continue with Google
-                </Button>
+                </GoogleSignInButton>
                 <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
                   30s setup • Private by default
                 </span>
